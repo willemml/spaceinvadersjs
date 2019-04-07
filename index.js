@@ -11,8 +11,7 @@ function startGame() {
   player = new Component(50, 50, 'green', canvdim[0] / 2, canvdim[1] / 4 * 3)
   objs[0] = new Component(1, canvdim[1], 'black', -1, 0)
   objs[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
-  objs[2] = new Component(canvdim[0], 1, 'black', 0, -1)
-  objs[3] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
+  objs[2] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
   myGameArea.start()
 }
 var keyState = {};
@@ -101,10 +100,10 @@ function Component(width, height, color, x, y) {
     var otherright = otherobj.x + (otherobj.width) - 1
     var othertop = otherobj.y + 1
     var otherbottom = otherobj.y + (otherobj.height) - 1
-    var b_collision = otherbottom - player.y
+    var b_collision = otherbottom - this.y
     var t_collision = mybottom - otherobj.y
     var l_collision = myright - otherobj.x
-    var r_collision = otherright - player.x
+    var r_collision = otherright - this.x
     var crash = true
 
     if ((mybottom < othertop) ||
@@ -141,7 +140,7 @@ function updateGameArea() {
   var o
   for (o = 0; o < objs.length; o++) {
     if (player.crashWith(objs[o])) {
-      var uncrashSpeed = moveSpeed * (objs.length - 2)
+      var uncrashSpeed = moveSpeed * (objs.length + bullets.length - 1)
       switch (crashloc) {
         case 'top':
           player.y = player.y - uncrashSpeed
@@ -156,32 +155,7 @@ function updateGameArea() {
           player.x = player.x + uncrashSpeed
           break
       }
-    }
-    /*else if (bullets.length >= 1) {
-         for (u = 1; u < bullets.length; u++) {
-           if (bullets[u].crashWith(objs[o])) {
-             switch (crashloc) {
-               case 'top':
-                 bullets.splice(bullets[u], 1)
-                 message('YAY')
-                 break
-               case 'bottom':
-                 bullets.splice(bullets[u], 1)
-                 message('YAY')
-                 break
-               case 'right':
-                 bullets.splice(bullets[u], 1)
-                 message('YAY')
-                 break
-               case 'left':
-                 bullets.splice(bullets[u], 1)
-                 message('YAY')
-                 break
-             }
-           }
-         }
-       }*/
-    else {
+    } else {
       myGameArea.clear()
       var i
       for (i = 0; i < objs.length; i++) {
