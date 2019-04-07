@@ -1,20 +1,62 @@
-var objs = ['player', 'obj1', 'obj2', 'obj3', 'obj4']
+var objs = []
+var player
+var bullets = []
 var crashloc
+var canvdim = [1600, 900]
+var lobjs
+var timeOfLastShot = 0;
+
 
 function startGame() {
-  objs[0] = new Component(30, 30, 'green', 30, 80)
-  objs[1] = new Component(10, 200, 'red', 300, 120)
-  objs[2] = new Component(200, 10, 'red', 300, 120)
-  objs[3] = new Component(200, 10, 'red', 100, 120)
-  objs[4] = new Component(10, 200, 'red', 332, 120)
+  player = new Component(50, 50, 'green', canvdim[0] / 2, canvdim[1] / 4 * 3)
+  objs[0] = new Component(1, canvdim[1], 'black', -1, 0)
+  objs[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
+  objs[2] = new Component(canvdim[0], 1, 'black', 0, -1)
+  objs[3] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
   myGameArea.start()
+}
+var keyState = {};
+window.addEventListener('keydown', function(e) {
+  keyState[e.keyCode || e.which] = true;
+}, true);
+window.addEventListener('keyup', function(e) {
+  keyState[e.keyCode || e.which] = false;
+}, true);
+
+function button() {
+  if (keyState[32] && new Date() - timeOfLastShot > 250) {
+    shoot(player.x + (player.width / 2), player.y - 6)
+    timeOfLastShot = new Date()
+  }
+  for (u = 0; u < bullets.length; u++) {
+    bullets[u].y = bullets[u].y - 0.5
+    updateComponent(bullets[u])
+    if (bullets[u].y < 0) {
+      bullets.splice(bullets[u], 1)
+    }
+  }
+}
+
+function message(msg) {
+  var ctx = myGameArea.canvas.getContext("2d");
+  ctx.font = "30px Courier";
+  var textString = msg
+  var textWidth = ctx.measureText(textString).width
+  var textHeight = ctx.measureText(textString).height
+  ctx.fillText(textString, (canvdim[0] / 2) - (textWidth / 2), canvdim[1] / 2);
+}
+
+function shoot(xstart, ystart) {
+  bullets.push(new Component(10, 10, 'blue', xstart - 5, ystart - 5))
 }
 
 var myGameArea = {
   canvas: document.createElement('canvas'),
   start: function() {
-    this.canvas.width = 1080
-    this.canvas.height = 720
+    this.canvas.x = 0
+    this.canvas.y = 0
+    this.canvas.width = canvdim[0]
+    this.canvas.height = canvdim[1]
     this.context = this.canvas.getContext('2d')
     document.body.insertBefore(this.canvas, document.body.childNodes[0])
     this.interval = setInterval(updateGameArea, 1)
@@ -23,6 +65,7 @@ var myGameArea = {
       myGameArea.keys[e.keyCode] = true
     })
     window.addEventListener('keyup', function(e) {
+      myGameArea.keys = (myGameArea.keys || [])
       myGameArea.keys[e.keyCode] = false
     })
   },
@@ -32,6 +75,7 @@ var myGameArea = {
 }
 
 function Component(width, height, color, x, y) {
+  this.color = color
   this.width = width
   this.height = height
   this.speedX = 0
@@ -57,10 +101,10 @@ function Component(width, height, color, x, y) {
     var otherright = otherobj.x + (otherobj.width) - 1
     var othertop = otherobj.y + 1
     var otherbottom = otherobj.y + (otherobj.height) - 1
-    var b_collision = otherbottom - objs[0].y
+    var b_collision = otherbottom - player.y
     var t_collision = mybottom - otherobj.y
     var l_collision = myright - otherobj.x
-    var r_collision = otherright - objs[0].x
+    var r_collision = otherright - player.x
     var crash = true
 
     if ((mybottom < othertop) ||
@@ -71,70 +115,90 @@ function Component(width, height, color, x, y) {
     }
     if (t_collision < b_collision && t_collision < l_collision && t_collision < r_collision) {
       crashloc = 'top'
-      document.getElementById('crashloc').innerHTML = crashloc
     }
     if (b_collision < t_collision && b_collision < l_collision && b_collision < r_collision) {
       crashloc = 'bottom'
-      document.getElementById('crashloc').innerHTML = crashloc
     }
     if (l_collision < r_collision && l_collision < t_collision && l_collision < b_collision) {
       crashloc = 'right'
-      document.getElementById('crashloc').innerHTML = crashloc
     }
     if (r_collision < l_collision && r_collision < t_collision && r_collision < b_collision) {
       crashloc = 'left'
-      document.getElementById('crashloc').innerHTML = crashloc
     }
     return crash
   }
 }
 
+function updateComponent(component) {
+  var ctx
+  ctx = myGameArea.context
+  ctx.fillStyle = component.color
+  ctx.fillRect(component.x, component.y, component.width, component.height)
+}
+
 function updateGameArea() {
   var moveSpeed = 0.5
   var o
-  for (o = 1; o < objs.length; o++) {
-    if (objs[0].crashWith(objs[o])) {
-      var uncrashSpeed = moveSpeed * 3
+  for (o = 0; o < objs.length; o++) {
+    if (player.crashWith(objs[o])) {
+      var uncrashSpeed = moveSpeed * (objs.length - 2)
       switch (crashloc) {
         case 'top':
-          objs[0].y = objs[0].y - uncrashSpeed
+          player.y = player.y - uncrashSpeed
           break
         case 'bottom':
-          objs[0].y = objs[0].y + uncrashSpeed
+          player.y = player.y + uncrashSpeed
           break
         case 'right':
-          objs[0].x = objs[0].x - uncrashSpeed
+          player.x = player.x - uncrashSpeed
           break
         case 'left':
-          objs[0].x = objs[0].x + uncrashSpeed
+          player.x = player.x + uncrashSpeed
           break
       }
     }
+    /*else if (bullets.length >= 1) {
+         for (u = 1; u < bullets.length; u++) {
+           if (bullets[u].crashWith(objs[o])) {
+             switch (crashloc) {
+               case 'top':
+                 bullets.splice(bullets[u], 1)
+                 message('YAY')
+                 break
+               case 'bottom':
+                 bullets.splice(bullets[u], 1)
+                 message('YAY')
+                 break
+               case 'right':
+                 bullets.splice(bullets[u], 1)
+                 message('YAY')
+                 break
+               case 'left':
+                 bullets.splice(bullets[u], 1)
+                 message('YAY')
+                 break
+             }
+           }
+         }
+       }*/
     else {
       myGameArea.clear()
       var i
       for (i = 0; i < objs.length; i++) {
-        objs[i].update();
+        objs[i].update()
+        objs[i].newPos()
       }
-      objs[0].speedX = 0
-      objs[0].speedY = 0
+      updateComponent(player)
+      player.newPos()
+      player.speedX = 0
+      player.speedY = 0
       if (myGameArea.keys && myGameArea.keys[37]) {
-        objs[0].speedX -= moveSpeed
+        player.speedX -= moveSpeed
       }
       if (myGameArea.keys && myGameArea.keys[39]) {
-        objs[0].speedX += moveSpeed
+        player.speedX += moveSpeed
       }
-      if (myGameArea.keys && myGameArea.keys[38]) {
-        objs[0].speedY -= moveSpeed
-      }
-      if (myGameArea.keys && myGameArea.keys[40]) {
-        objs[0].speedY += moveSpeed
-      }
-
-      //if (myGameArea.keys && myGameArea.keys[32]) {
-      //}
-      objs[0].newPos()
-      objs[0].update()
+      button()
     }
   }
 }
