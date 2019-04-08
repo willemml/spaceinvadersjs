@@ -5,13 +5,18 @@ var bullets = []
 var crashloc
 var canvdim = [1600, 900]
 var timeOfLastShot = 0
-
+var i
+var u
+var o
 
 function startGame() {
   player = new Component(50, 50, 'green', canvdim[0] / 2, canvdim[1] / 4 * 3)
   walls[0] = new Component(1, canvdim[1], 'black', -1, 0)
   walls[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
   objs[0] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
+  for (i = 0; i < 10; i++) {
+    objs[i] = new Component(50, 50, 'red', 300 + (i * 100), canvdim[1] / 4)
+  }
   myGameArea.start()
 }
 
@@ -41,9 +46,10 @@ function checkShotGone(bullet, num) {
 }
 // Check if bullet hit something
 function checkShotHit(bullet, num, object, onum) {
-  if (bullet[num].crashWith(object[onum])) {
-    object.splice(object[onum], 1)
+  if (object[onum].crashWith(bullet[num])) {
     bullet.splice(bullet[num], 1)
+    object.splice(object[onum], 1)
+    return true
   }
 }
 
@@ -126,26 +132,12 @@ function Component(width, height, color, x, y) {
   }
 }
 
-function updateComponent(component) {
-  var ctx
-  ctx = myGameArea.context
-  ctx.fillStyle = component.color
-  ctx.fillRect(component.x, component.y, component.width, component.height)
-}
-
 function updateGameArea() {
   var moveSpeed = 0.5
-  var o
   for (o = 0; o < walls.length; o++) {
     if (player.crashWith(walls[o])) {
       var uncrashSpeed = moveSpeed * (objs.length + bullets.length - 1)
       switch (crashloc) {
-        case 'top':
-          player.y = player.y - uncrashSpeed
-          break
-        case 'bottom':
-          player.y = player.y + uncrashSpeed
-          break
         case 'right':
           player.x = player.x - uncrashSpeed
           break
@@ -155,13 +147,11 @@ function updateGameArea() {
       }
     } else {
       myGameArea.clear()
-      var i
-      var u
       for (i = 0; i < objs.length; i++) {
         objs[i].update()
         objs[i].newPos()
       }
-      updateComponent(player)
+      player.update()
       player.newPos()
       player.speedX = 0
       player.speedY = 0
@@ -172,18 +162,20 @@ function updateGameArea() {
         player.speedX += moveSpeed
       }
       button()
-      for (i = 0; i < bullets.length; i++) {
-        bullets[i].y = bullets[i].y - 0.5
-        updateComponent(bullets[i])
-      }
       if (bullets.length > 0) {
         for (u = 0; u < bullets.length; u++) {
           for (i = 0; i < objs.length; i++) {
-            checkShotHit(bullets, u, objs, i)
+            if (checkShotHit(bullets, u, objs, i)) {
+              break
+            }
           }
-          if (bullets[u].y < 0) {
-            checkShotGone(bullets, u)
-          }
+        }
+      }
+      for (i = 0; i < bullets.length; i++) {
+        bullets[i].y = bullets[i].y - 0.5
+        bullets[i].update()
+        if (bullets[i].y < 0) {
+          checkShotGone(bullets, u)
         }
       }
     }
