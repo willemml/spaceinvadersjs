@@ -4,7 +4,8 @@ var walls = []
 var bullets = []
 var crashloc
 var canvdim = [1600, 900]
-var timeOfLastShot = 0
+var timeOfLastShot = 0\
+var numOfObjs = canvdim[0] / 100
 var i
 var u
 var o
@@ -14,8 +15,8 @@ function startGame() {
   walls[0] = new Component(1, canvdim[1], 'black', -1, 0)
   walls[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
   objs[0] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
-  for (i = 0; i < 10; i++) {
-    objs[i] = new Component(50, 50, 'red', 300 + (i * 100), canvdim[1] / 4)
+  for (i = 0; i < numOfObjs; i++) {
+    objs[i] = new Component(50, 50, 'red', i * 100 + 25, 25)
   }
   myGameArea.start()
 }
@@ -134,9 +135,9 @@ function Component(width, height, color, x, y) {
 
 function updateGameArea() {
   var moveSpeed = 0.5
+  var uncrashSpeed = moveSpeed * (objs.length + bullets.length + walls.length - 1)
   for (o = 0; o < walls.length; o++) {
     if (player.crashWith(walls[o])) {
-      var uncrashSpeed = moveSpeed * (objs.length + bullets.length - 1)
       switch (crashloc) {
         case 'right':
           player.x = player.x - uncrashSpeed
