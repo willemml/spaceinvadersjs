@@ -5,7 +5,7 @@ var walls = []
 var bullets = []
 var crashloc
 var canvdim = [1600, 900] // screen resolution
-var timeOfLastShot = 0\
+var timeOfLastShot = 0
 var numOfObjs = canvdim[0] / 100
 var i
 var u
