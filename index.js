@@ -1,11 +1,10 @@
+var player
 var objs = []
 var walls = []
-var player
 var bullets = []
 var crashloc
 var canvdim = [1600, 900]
-var lobjs
-var timeOfLastShot = 0;
+var timeOfLastShot = 0
 
 
 function startGame() {
@@ -14,35 +13,6 @@ function startGame() {
   walls[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
   objs[0] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
   myGameArea.start()
-}
-var keyState = {};
-window.addEventListener('keydown', function(e) {
-  keyState[e.keyCode || e.which] = true;
-}, true);
-window.addEventListener('keyup', function(e) {
-  keyState[e.keyCode || e.which] = false;
-}, true);
-
-function button() {
-  if (keyState[32] && new Date() - timeOfLastShot > 250) {
-    shoot(player.x + (player.width / 2), player.y - 6)
-    timeOfLastShot = new Date()
-  }
-  if (bullets.length > 0 && objs.length > 0) {
-    for (u = 0; u < bullets.length; u++) {
-      bullets[u].y = bullets[u].y - 0.5
-      updateComponent(bullets[u])
-      for (i = 0; i < objs.length; i++) {
-        if (bullets[u].crashWith(objs[i])) {
-          objs.splice(bullets[i], 1)
-          bullets.splice(bullets[u], 1)
-        }
-      }
-      if (bullets[u].y < 0) {
-        bullets.splice(bullets[u], 1)
-      }
-    }
-  }
 }
 
 function message(msg) {
@@ -56,6 +26,25 @@ function message(msg) {
 
 function shoot(xstart, ystart) {
   bullets.push(new Component(10, 10, 'blue', xstart - 5, ystart - 5))
+  console.log('BANG')
+}
+
+function button() {
+  if (myGameArea.keys && myGameArea.keys[32] && new Date() - timeOfLastShot > 250) {
+    shoot(player.x + (player.width / 2), player.y - 6)
+    timeOfLastShot = new Date()
+  }
+}
+// Check if bullet went offscreen
+function checkShotGone(bullet, num) {
+  bullet.splice(bullet[num], 1)
+}
+// Check if bullet hit something
+function checkShotHit(bullet, num, object, onum) {
+  if (bullet[num].crashWith(object[onum])) {
+    object.splice(object[onum], 1)
+    bullet.splice(bullet[num], 1)
+  }
 }
 
 var myGameArea = {
@@ -167,6 +156,7 @@ function updateGameArea() {
     } else {
       myGameArea.clear()
       var i
+      var u
       for (i = 0; i < objs.length; i++) {
         objs[i].update()
         objs[i].newPos()
@@ -182,6 +172,20 @@ function updateGameArea() {
         player.speedX += moveSpeed
       }
       button()
+      for (i = 0; i < bullets.length; i++) {
+        bullets[i].y = bullets[i].y - 0.5
+        updateComponent(bullets[i])
+      }
+      if (bullets.length > 0) {
+        for (u = 0; u < bullets.length; u++) {
+          for (i = 0; i < objs.length; i++) {
+            checkShotHit(bullets, u, objs, i)
+          }
+          if (bullets[u].y < 0) {
+            checkShotGone(bullets, u)
+          }
+        }
+      }
     }
   }
 }
