@@ -1,4 +1,5 @@
 var objs = []
+var walls = []
 var player
 var bullets = []
 var crashloc
@@ -9,9 +10,9 @@ var timeOfLastShot = 0;
 
 function startGame() {
   player = new Component(50, 50, 'green', canvdim[0] / 2, canvdim[1] / 4 * 3)
-  objs[0] = new Component(1, canvdim[1], 'black', -1, 0)
-  objs[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
-  objs[2] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
+  walls[0] = new Component(1, canvdim[1], 'black', -1, 0)
+  walls[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
+  objs[0] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
   myGameArea.start()
 }
 var keyState = {};
@@ -27,11 +28,19 @@ function button() {
     shoot(player.x + (player.width / 2), player.y - 6)
     timeOfLastShot = new Date()
   }
-  for (u = 0; u < bullets.length; u++) {
-    bullets[u].y = bullets[u].y - 0.5
-    updateComponent(bullets[u])
-    if (bullets[u].y < 0) {
-      bullets.splice(bullets[u], 1)
+  if (bullets.length > 0 && objs.length > 0) {
+    for (u = 0; u < bullets.length; u++) {
+      bullets[u].y = bullets[u].y - 0.5
+      updateComponent(bullets[u])
+      for (i = 0; i < objs.length; i++) {
+        if (bullets[u].crashWith(objs[i])) {
+          objs.splice(bullets[i], 1)
+          bullets.splice(bullets[u], 1)
+        }
+      }
+      if (bullets[u].y < 0) {
+        bullets.splice(bullets[u], 1)
+      }
     }
   }
 }
@@ -138,8 +147,8 @@ function updateComponent(component) {
 function updateGameArea() {
   var moveSpeed = 0.5
   var o
-  for (o = 0; o < objs.length; o++) {
-    if (player.crashWith(objs[o])) {
+  for (o = 0; o < walls.length; o++) {
+    if (player.crashWith(walls[o])) {
       var uncrashSpeed = moveSpeed * (objs.length + bullets.length - 1)
       switch (crashloc) {
         case 'top':
