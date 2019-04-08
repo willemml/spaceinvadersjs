@@ -48,7 +48,7 @@ function checkShotGone(bullet, num) {
 function checkShotHit(bullet, num, object, onum) {
   if (object[onum].crashWith(bullet[num])) {
     bullet.splice(bullet[num], 1)
-    object.splice(object[onum], 1)
+    object.splice(onum, 1)
     return true
   }
 }
