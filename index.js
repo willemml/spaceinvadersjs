@@ -4,7 +4,7 @@ var objs = []
 var walls = []
 var bullets = []
 var crashloc
-var canvdim = [1600, 900] // screen resolution
+var canvdim = [Math.floor(window.innerWidth / 100) * 100 || Maths.floor(document.body.clientWidth / 100) * 100, window.innerHeight || document.body.clientHeight] //[1600, 900] // screen resolution
 var timeOfLastShot = 0
 var numOfObjs = canvdim[0] / 100
 var i
@@ -49,13 +49,13 @@ function button() {
 
 // Check if bullet went offscreen
 function checkShotGone(bullet, num) {
-  bullet.splice(bullet[num], 1)
+  bullet.splice(num, 1)
 }
 
 // Check if bullet hit something
 function checkShotHit(bullet, num, object, onum) {
   if (object[onum].crashWith(bullet[num])) {
-    bullet.splice(bullet[num], 1)
+    bullet.splice(num, 1)
     object.splice(onum, 1)
     return true
   }
