@@ -16,7 +16,6 @@ function startGame() {
   player = new Component(50, 50, 'green', canvdim[0] / 2, canvdim[1] / 4 * 3)
   walls[0] = new Component(1, canvdim[1], 'black', -1, 0)
   walls[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
-  objs[0] = new Component(50, 50, 'red', canvdim[0] / 2, canvdim[1] / 4)
   for (i = 0; i < numOfObjs; i++) {
     objs[i] = new Component(50, 50, 'red', i * 100 + 25, 25)
   }
@@ -41,7 +40,7 @@ function shoot(xstart, ystart) {
 
 // Checks if a bullet can be created and creates one if yes
 function button() {
-  if (myGameArea.keys && myGameArea.keys[32] && new Date() - timeOfLastShot > 250 /* Time in ms between shots */) {
+  if (myGameArea.keys && myGameArea.keys[32] && bullets.length == 0 /*new Date() - timeOfLastShot > 250*/ /* Time in ms between shots */ ) {
     shoot(player.x + (player.width / 2), player.y - 6)
     timeOfLastShot = new Date()
   }
@@ -49,7 +48,10 @@ function button() {
 
 // Check if bullet went offscreen
 function checkShotGone(bullet, num) {
-  bullet.splice(num, 1)
+  if (bullet[num].y < 0) {
+    bullet.splice(num, 1)
+    return true
+  }
 }
 
 // Check if bullet hit something
@@ -145,7 +147,7 @@ function Component(width, height, color, x, y) {
 
 // updates all game objects and checks for movements (arrow keys), collisions, shots (shooting bullets with space) and hits
 function updateGameArea() {
-  var moveSpeed = 0.5
+  var moveSpeed = canvdim[0] / 3000
   var uncrashSpeed = moveSpeed * (objs.length + bullets.length + walls.length - 1)
   for (o = 0; o < walls.length; o++) {
     // player / wall collisions
@@ -185,10 +187,10 @@ function updateGameArea() {
         }
       }
       for (i = 0; i < bullets.length; i++) {
-        bullets[i].y = bullets[i].y - 0.5
+        bullets[i].y = bullets[i].y - canvdim[1] / 700
         bullets[i].update()
-        if (bullets[i].y < 0) {
-          checkShotGone(bullets, u)
+        if (checkShotGone(bullets, i)) {
+          break
         }
       }
     }
