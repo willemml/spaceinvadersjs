@@ -40,10 +40,10 @@ function shoot(xstart, ystart) {
 
 // Checks if a bullet can be created and creates one if yes
 function button() {
-  if (myGameArea.keys && myGameArea.keys[32] && bullets.length == 0 /*new Date() - timeOfLastShot > 250*/ /* Time in ms between shots */ ) {
-    shoot(player.x + (player.width / 2), player.y - 6)
-    timeOfLastShot = new Date()
-  }
+  if (myGameArea.keys && myGameArea.keys[32] && bullets.length == 0) { // <-- (currently waiting for other shot to have disappeared to
+    shoot(player.x + (player.width / 2), player.y - 6)                 // allow new bullet spawn) use "new Date() - timeOfLastShot > 250"
+    timeOfLastShot = new Date()                                        // instead of "bullets.length == 0" for adjustable time in ms
+  }                                                                    // between shots
 }
 
 // Check if bullet went offscreen
