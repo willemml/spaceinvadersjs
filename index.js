@@ -4,7 +4,7 @@ var objs = []
 var walls = []
 var bullets = []
 var crashloc
-var canvdim = [Math.floor(window.innerWidth / 100) * 100 || Maths.floor(document.body.clientWidth / 100) * 100, window.innerHeight - 25 || document.body.clientHeight - 25] //[1600, 900] // screen resolution
+var canvdim = [Math.floor(window.innerWidth / 100) * 100 || Maths.floor(document.body.clientWidth / 100) * 100, window.innerHeight - 25 || document.body.clientHeight - 25] // set canvas resolution
 var timeOfLastShot = 0
 var numOfObjs = canvdim[0] / 100
 var i
