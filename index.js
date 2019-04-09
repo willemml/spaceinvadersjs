@@ -12,7 +12,7 @@ var u
 var o
 
 function startGame() {
-  // Creating visible game objects
+  // Creating visible / interactive game objects
   player = new Component(50, 50, 'green', canvdim[0] / 2, canvdim[1] / 4 * 3)
   walls[0] = new Component(1, canvdim[1], 'black', -1, 0)
   walls[1] = new Component(1, canvdim[1], 'black', canvdim[0], 0)
