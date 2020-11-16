@@ -1,1 +1,1 @@
-Demo at https://wnuke.github.io/spaceinvadersjs/
+Demo at https://willemml.github.io/spaceinvadersjs/
